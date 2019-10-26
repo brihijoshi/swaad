@@ -1,7 +1,6 @@
 package com.tengo.camerayeetsfirst;
 
 import android.Manifest;
-import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,32 +16,30 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int CAMERA_PIC_REQUEST = 1;
     private static final int PERMISSIONS_REQUEST = 2;
+    private static final String URI_PREFIX = "http://";
+    private static final String HOST = "169.228.184.253";
+    private static final String PORT = "80";
+    private static final String BASE_URL = URI_PREFIX + HOST + ":" + PORT;
 
     private ImageView mCameraButton;
-    private String currentPhotoPath;
+    private ProgressBar mLoadingSpinner;
+    private String mImagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mCameraButton = findViewById(R.id.camera_button);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     protected void attemptCamera() {
         Log.e("attempt camera", "attempting a camera open");
         if (lacksPermissions()) {
-            String[] permissions = new String[4];
+            final String[] permissions = new String[4];
             permissions[0] = Manifest.permission.WRITE_EXTERNAL_STORAGE;
             permissions[1] = Manifest.permission.READ_EXTERNAL_STORAGE;
             permissions[2] = Manifest.permission.CAMERA;
@@ -75,35 +73,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void openCamera() {
         Log.e("state", "Opening camera");
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        final Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
                 ex.printStackTrace();
             }
-            Uri photoURI = FileProvider.getUriForFile(this, "com.tengo.fileprovider", photoFile);
+            final Uri photoURI = FileProvider.getUriForFile(this, "com.tengo.fileprovider", photoFile);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
             startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
         }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        Log.e("Storage", storageDir.getAbsolutePath());
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
     }
 
     private boolean lacksPermissions() {
@@ -114,18 +95,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length == 4
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
                         && grantResults[3] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-
                     openCamera();
                 }
             }
@@ -142,62 +119,75 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.e("camera data", "camera null");
             }
-//            displayImage();
+            mLoadingSpinner.setVisibility(View.VISIBLE);
             makeImagePostRequest();
-            // TODO send to server
-            // TODO show spinner
-        }
-        if (resultCode == RESULT_CANCELED) {
-            Log.e("activity result", "activity cancelled");
         }
     }
 
     private void makeImagePostRequest() {
-        byte[] bytes;
+        byte[] bytes = ImageUtils.getImageBytes(mImagePath);
+        if (bytes == null)
+            throw new RuntimeException("Cannot get bytes for image");
 
-        try {
-            bytes = getImageBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e("Image Request", "Problem with getting image bytes, aborting POST request");
-            return;
-        }
+        Log.e("bytes length", ""+ bytes.length);
+        RequestBody postBodyImage = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", "food.jpg", RequestBody.create(MediaType.parse("image/*jpg"), bytes))
+                .build();
 
-        RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpg"), bytes /* byte array here */ );
-        MultipartBody.Part body = MultipartBody.Part.createFormData("upload", null /* file name */, requestBody);
-
-        Requests.PictureService service = new Retrofit.Builder()
-                .baseUrl("http://169.228.184.253:80") // TODO fill out base url
-                .build()
-                .create(Requests.PictureService.class);
-
-        Call<ResponseBody> req = service.upload(body);
-        req.enqueue(new Callback<ResponseBody>() {
+        final String postUrl = BASE_URL + "/ingredient";
+        Log.e("post url", postUrl);
+        Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate(){
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.e("RESPONSE", "SUCCESS");
-                Log.e("response", response.toString());
+            public void onSuccess() {
+                networkUIHandler("Item Updated!");
             }
-
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                //failure message
-                t.printStackTrace();
+            public void onFailure() {
+                networkUIHandler("Network Request Failed!");
             }
         });
     }
 
-    private byte[] getImageBytes() throws IOException {
-            InputStream in = new FileInputStream(new File(currentPhotoPath));
-            byte[] buf = new byte[in.available()];
-            while (in.read(buf) != -1);
-            for (int i = buf.length - 1; i >= buf.length - 20; i--)
-                Log.e("byte: " + i + " from the end", Byte.toString(buf[i]));
-            for (int i = 0; i <= 20; i++)
-                Log.e("byte: " + i + " from the beginning", Byte.toString(buf[i]));
+    private void makeRecipePostRequest() {
+//        // TODO figure out the request body
+//        final RequestBody postBodyImage = new MultipartBody.Builder()
+//                .setType(MultipartBody.FORM)
+//                .addFormDataPart("image", "food.jpg", RequestBody.create(MediaType.parse("image/*jpg"), bytes))
+//                .build();
+//
+//        final String postUrl = BASE_URL + "/recipe";
+//        Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate() {
+//            @Override
+//            public void onSuccess() {
+//                networkUIHandler(null);
+//            }
+//            @Override
+//            public void onFailure() {
+//                networkUIHandler("Network failure occurred!");
+//            }
+//        });
+    }
 
-            Log.e("bytesLength", ""+buf.length);
-            return buf;
+    private void networkUIHandler(@Nullable final String toastText) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLoadingSpinner.setVisibility(View.GONE);
+                if (toastText != null)
+                    Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private @NonNull File createImageFile() throws IOException {
+        final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        final String imageFileName = "JPEG_" + timeStamp + "_";
+        final File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Log.e("Storage", storageDir.getAbsolutePath());
+        final File image = File.createTempFile(imageFileName,".jpg", storageDir);
+        mImagePath = image.getAbsolutePath();
+        return image;
     }
 
     private void displayImage() {
@@ -213,22 +203,16 @@ public class MainActivity extends AppCompatActivity {
         int photoH = bmOptions.outHeight;
 
         // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
 
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
-
-        byte[] bytes;
-        try {
-            bytes = getImageBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e("Bytes", "Problem with getting image bytes");
-            return;
-        }
+        byte[] bytes = ImageUtils.getImageBytes(mImagePath);
+        if (bytes == null)
+            throw new RuntimeException("Cannot get bytes for image");
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         mCameraButton.setImageBitmap(bitmap);
     }

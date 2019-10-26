@@ -12,4 +12,15 @@
         android:layout_height="match_parent"
         android:text="Open the camera"/>
 
+
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        style="?android:attr/progressBarStyleLarge"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="2dp"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/colorPrimary" />
+
 </android.support.constraint.ConstraintLayout>
