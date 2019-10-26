@@ -1,6 +1,7 @@
 package com.tengo.camerayeetsfirst;
 
 import android.Manifest;
+import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -26,7 +27,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,10 +62,11 @@ public class MainActivity extends AppCompatActivity {
     protected void attemptCamera() {
         Log.e("attempt camera", "attempting a camera open");
         if (lacksPermissions()) {
-            String[] permissions = new String[3];
+            String[] permissions = new String[4];
             permissions[0] = Manifest.permission.WRITE_EXTERNAL_STORAGE;
             permissions[1] = Manifest.permission.READ_EXTERNAL_STORAGE;
             permissions[2] = Manifest.permission.CAMERA;
+            permissions[3] = Manifest.permission.INTERNET;
             requestPermissions(permissions, PERMISSIONS_REQUEST);
         } else {
             openCamera();
@@ -101,7 +109,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean lacksPermissions() {
         return checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
                 || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
-                || checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED;
+                || checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED
+                || checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_DENIED;
     }
 
     @Override
@@ -110,10 +119,11 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSIONS_REQUEST: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length == 3
+                if (grantResults.length == 4
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                        && grantResults[2] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
 
                     openCamera();
@@ -132,24 +142,65 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.e("camera data", "camera null");
             }
-            setPic();
-
+//            displayImage();
+            makeImagePostRequest();
             // TODO send to server
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("url")
-                    .build();
-            Requests.GitHubService service = retrofit.create(Requests.GitHubService.class);
-            Call<List<String>> repos = service.listRepos("octocat");
-
-//            repos.execute();
-
+            // TODO show spinner
         }
         if (resultCode == RESULT_CANCELED) {
             Log.e("activity result", "activity cancelled");
         }
     }
 
-    private void setPic() {
+    private void makeImagePostRequest() {
+        byte[] bytes;
+
+        try {
+            bytes = getImageBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Image Request", "Problem with getting image bytes, aborting POST request");
+            return;
+        }
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpg"), bytes /* byte array here */ );
+        MultipartBody.Part body = MultipartBody.Part.createFormData("upload", null /* file name */, requestBody);
+
+        Requests.PictureService service = new Retrofit.Builder()
+                .baseUrl("http://169.228.184.253:80") // TODO fill out base url
+                .build()
+                .create(Requests.PictureService.class);
+
+        Call<ResponseBody> req = service.upload(body);
+        req.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.e("RESPONSE", "SUCCESS");
+                Log.e("response", response.toString());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                //failure message
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private byte[] getImageBytes() throws IOException {
+            InputStream in = new FileInputStream(new File(currentPhotoPath));
+            byte[] buf = new byte[in.available()];
+            while (in.read(buf) != -1);
+            for (int i = buf.length - 1; i >= buf.length - 20; i--)
+                Log.e("byte: " + i + " from the end", Byte.toString(buf[i]));
+            for (int i = 0; i <= 20; i++)
+                Log.e("byte: " + i + " from the beginning", Byte.toString(buf[i]));
+
+            Log.e("bytesLength", ""+buf.length);
+            return buf;
+    }
+
+    private void displayImage() {
         // Get the dimensions of the View
         int targetW = mCameraButton.getWidth();
         int targetH = mCameraButton.getHeight();
@@ -169,17 +220,17 @@ public class MainActivity extends AppCompatActivity {
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        mCameraButton.setImageBitmap(bitmap);
 
+        byte[] bytes;
         try {
-            InputStream in = new FileInputStream(new File(currentPhotoPath));
-            byte[] buf = new byte[in.available()];
-            while (in.read(buf) != -1);
-            Log.e("bytes", Arrays.toString(buf));
-        } catch (Exception e) {
+            bytes = getImageBytes();
+        } catch (IOException e) {
             e.printStackTrace();
+            Log.e("Bytes", "Problem with getting image bytes");
+            return;
         }
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        mCameraButton.setImageBitmap(bitmap);
     }
 
 }
