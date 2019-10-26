@@ -1,36 +1,43 @@
-from flask import Flask, render_template, request, url_for, jsonify, Response
-import numpy as np
-import cv2
-import io
-from PIL import Image
+from flask import Flask, request, Response
+import os
+from werkzeug import utils
 
 app = Flask(__name__)
 
-# route http posts to this method
-@app.route('/api/test', methods=['POST'])
+
+@app.route('/ingredient', methods=['GET', 'POST'])
 def test():
-    r = request
+    image_file = request.files['image']
+    print("\nReceived image File name : " + image_file.filename)
+    max = get_latest_file_id()
+    filename = utils.secure_filename(str(max + 1))
+    image_file.save("images/{}.jpg".format(filename))
+    # clear_files()
 
-    # print(len(r.data))
-    # convert string of image data to uint8
-    # nparr = np.fromstring(r.data, np.uint8)
-    # # decode image
-    # img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-    imageStream = io.BytesIO(r.data)
-    imageFile = Image.open(imageStream)
-    imageFile.show()
+    return Response(response=None, status=200, mimetype="application/json")
 
 
-    # do some fancy processing here....
+@app.route('/recipe', methods=['POST'])
+def end_sequence():
+    # TODO make request to recipes here
+    # TODO send JSON response to client
+    return Response(response=None, status=200, mimetype="application/json")
 
-    # build a response dict to send back to client
-    response = {'message': 'image received'}
-    # encode response using jsonpickle
-    # response_pickled = jsonpickle.encode(response)
 
-    return Response(response=response, status=200, mimetype="application/json")
+def clear_files():
+    for file in os.listdir("images"):
+        if file.endswith("jpg"):
+            os.unlink(os.path.join("images", file))
 
+
+def get_latest_file_id():
+    max = 1
+    for file in os.listdir("images"):
+        if file.endswith("jpg"):
+            file_id = file.replace(".jpg", "")
+            if int(file_id) > max:
+                max = int(file_id)
+    return max
 
 # start flask app
-app.run(host="0.0.0.0", port=5000)
+app.run(host="0.0.0.0", port=80)
