@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -42,8 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String PORT = "80";
     private static final String BASE_URL = URI_PREFIX + HOST + ":" + PORT;
 
-    private ImageView mCameraButton;
-    private ImageView mRecipeButton;
+    private ImageView mImageView;
+    private Button mCameraButton;
+    private Button mRecipeButton;
     private ProgressBar mLoadingSpinner;
     private String mImagePath;
 
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         mCameraButton = findViewById(R.id.camera_button);
         mRecipeButton = findViewById(R.id.recipe_button);
+        mImageView = findViewById(R.id.icon);
         mLoadingSpinner = findViewById(R.id.loading_spinner);
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.e("camera data", "camera null");
             }
-            mLoadingSpinner.setVisibility(View.VISIBLE);
             makeImagePostRequest();
         }
     }
@@ -150,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
         final String postUrl = BASE_URL + "/ingredient";
         Log.e("post url", postUrl);
+//        displayImage();
+        mLoadingSpinner.setVisibility(View.VISIBLE);
         Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate() {
             @Override
             public void onSuccess(final Response response) {
@@ -170,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         final String postUrl = BASE_URL + "/recipe";
+        mLoadingSpinner.setVisibility(View.VISIBLE);
         Networking.postRequest(postUrl, requestBody, new Networking.NetworkDelegate() {
             @Override
             public void onSuccess(final Response response) {
@@ -245,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         if (bytes == null)
             throw new RuntimeException("Cannot get bytes for image");
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        mCameraButton.setImageBitmap(bitmap);
+        mImageView.setImageBitmap(bitmap);
     }
 
 }

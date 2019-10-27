@@ -41,6 +41,7 @@ public class Networking {
 
                     @Override
                     public void onResponse(Call call, final Response response) throws IOException {
+                        call.cancel();
                         delegate.onSuccess(response);
                     }
                 });
