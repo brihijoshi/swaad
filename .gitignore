@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*Dataset
+*Data
+*data
+*dataset
+
 *.pem
 
 # C extensions
