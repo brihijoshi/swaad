@@ -10,6 +10,7 @@ __swaad__ (hindi for 'taste') follows our belief that leftover food just needs a
 <p align="center">
   <a href="#motivation">Motivation</a> •
   <a href="#key-features">Key Features</a> •
+    <a href="#usage">Usage</a> •
   <a href="#powered-by">Powered By</a> •
 </p>
 
@@ -32,6 +33,8 @@ The [UN's Sustainable Development Goals Action Campaign](https://sdgactioncampai
 :sparkles: Select multiple leftover ingredients at once
 
 :sparkles: Smart recipe recognition - Recipes ordered on the basis of how many new ingredients do you wish to purchase!
+
+## Usage
 
 ## Powered By
 
