@@ -5,13 +5,13 @@
 
 <h4 align="center">An AI based effort to reduce food wastage from households by incorporating the leftovers into delicious recipes!</h4>
 
-__swaad__ (hindi for 'taste') follows our belief that leftover food just needs a little redsign and it can save a lot of food going to waste. __swaad__ is a simple-to-use, cost-effective application that requires you to take pictures of left-over items like fruits and groceries and it will use Computer Vision algorithms to identify them and suggest recipes that you can make from them!
+__swaad__ (hindi for 'taste') follows our belief that leftover food just needs a little redsign and it can save a lot of food going to waste. __swaad__ is a simple-to-use, cost-effective application that requires you to take pictures of left-over items like fruits and groceries, and it will use Computer Vision algorithms to identify them and suggest recipes to make from them!
 
 <p align="center">
   <a href="#motivation">Motivation</a> •
   <a href="#key-features">Key Features</a> •
     <a href="#usage">Usage</a> •
-  <a href="#powered-by">Powered By</a> •
+  <a href="#powered-by">Powered By</a>
 </p>
 
 <h1 align="center">
