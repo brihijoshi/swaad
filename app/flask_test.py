@@ -10,6 +10,14 @@ app = Flask(__name__)
 label_list = []
 
 
+@app.route('/handshake', methods=['POST'])
+def handshake():
+    print("hit handshake endpoint")
+    label_list.clear()
+    clear_files()
+    return Response(response=None, status=200, mimetype="application/json")
+
+
 @app.route('/ingredient', methods=['POST'])
 def ingredient():
     print("hit ingredient endpoint")
@@ -19,19 +27,22 @@ def ingredient():
     image_file.save("images/{}.jpg".format(filename))
     label = detect_labels_local_file("images/{}.jpg".format(filename))
     print(label)
-    if label is not None:
+    if label:
         label_list.append(label)
 
-    return Response(response=None, status=200, mimetype="application/json")
+    return Response(response=label, status=200, mimetype="application/json")
 
 
 @app.route('/recipe', methods=['POST'])
 def recipe():
     if len(label_list) == 0:
-        return Response(response="No ingredients scanned", status=404, mimetype="application/json")
+        return Response(response=None, status=400, mimetype="application/json")
 
     print(str(label_list))
     response = get_recipes(label_list)
+    if response is None:
+        return Response(response=None, status=200, mimetype="application/json")
+
     label_list.clear()
     clear_files()
 

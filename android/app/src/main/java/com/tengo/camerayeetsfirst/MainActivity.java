@@ -3,8 +3,6 @@ package com.tengo.camerayeetsfirst;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -39,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_PIC_REQUEST = 1;
     private static final int PERMISSIONS_REQUEST = 2;
     private static final String URI_PREFIX = "http://";
-    private static final String HOST = "169.228.184.253";
+    private static final String HOST = "169.228.190.224";
     private static final String PORT = "80";
     private static final String BASE_URL = URI_PREFIX + HOST + ":" + PORT;
 
@@ -58,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         mRecipeButton = findViewById(R.id.recipe_button);
         mImageView = findViewById(R.id.icon);
         mLoadingSpinner = findViewById(R.id.loading_spinner);
+
+        makeHandshake();
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,6 +133,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void makeHandshake() {
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("clientId", "15")
+                .build();
+
+        final String postUrl = BASE_URL + "/handshake";
+        AnimationUtils.fadeInToVisible(mLoadingSpinner);
+        Networking.postRequest(postUrl, requestBody, new Networking.NetworkDelegate() {
+            @Override
+            public void onSuccess(final Response response) {
+                networkUIHandler("Handshake completed");
+            }
+            @Override
+            public void onFailure() {
+                networkUIHandler("Network failure occurred!");
+            }
+        });
+    }
+
     private void makeImagePostRequest() {
         byte[] bytes = ImageUtils.getImageBytes(mImagePath);
         if (bytes == null)
@@ -148,7 +168,14 @@ public class MainActivity extends AppCompatActivity {
         Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate() {
             @Override
             public void onSuccess(final Response response) {
-                networkUIHandler("Item Updated!");
+                try {
+                    String addedItem = response.body().string();
+                    String outputString = addedItem.isEmpty() ? "Could not recognize any items" : "Added " + addedItem;
+                    networkUIHandler(outputString);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    networkUIHandler(null);
+                }
             }
 
             @Override
@@ -161,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
     private void makeRecipePostRequest() {
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("maxResults", "5")
+                .addFormDataPart("maxResults", "8")
                 .build();
 
         final String postUrl = BASE_URL + "/recipe";
@@ -169,16 +196,18 @@ public class MainActivity extends AppCompatActivity {
         Networking.postRequest(postUrl, requestBody, new Networking.NetworkDelegate() {
             @Override
             public void onSuccess(final Response response) {
-                networkUIHandler(null);
                 JSONObject jsonObject;
                 Recipe[] recipes;
                 try {
-                    jsonObject = new JSONObject(response.body().string());
+                    String jsonResponse = response.body().string();
+                    networkUIHandler(jsonResponse.isEmpty() ? "No relevant recipes" : null);
+                    jsonObject = new JSONObject(jsonResponse);
                     String temp = jsonObject.getJSONArray("results").toString();
                     Log.e("response value", temp);
                     recipes = new Gson().fromJson(temp, Recipe[].class);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    networkUIHandler(null);
                     return;
                 }
                 Bundle bundle = new Bundle();
@@ -201,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 AnimationUtils.fadeOutToGone(mLoadingSpinner);
                 if (toastText != null)
-                    Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -215,33 +244,6 @@ public class MainActivity extends AppCompatActivity {
         final File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         mImagePath = image.getAbsolutePath();
         return image;
-    }
-
-    private void displayImage() {
-        // Get the dimensions of the View
-        int targetW = mCameraButton.getWidth();
-        int targetH = mCameraButton.getHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        byte[] bytes = ImageUtils.getImageBytes(mImagePath);
-        if (bytes == null)
-            throw new RuntimeException("Cannot get bytes for image");
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        mImageView.setImageBitmap(bitmap);
     }
 
 }
