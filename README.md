@@ -10,9 +10,7 @@ __swaad__ (hindi for 'taste') follows our belief that leftover food just needs a
 <p align="center">
   <a href="#motivation">Motivation</a> •
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
   <a href="#technical-details">Technical Details</a> •
-  <a href="#related">Related</a> •
   <a href="#license">License</a>
 </p>
 
@@ -24,35 +22,25 @@ The [UN's Sustainable Development Goals Action Campaign](https://sdgactioncampai
 
 > In the U.S., up to 40 percent of all food goes uneaten each year, at an annual cost of $218 billion!
 
-Given the increase in awareness of this issue, several ideas like Waste Management Systems, Smart Fridges, etc, have been built, but with an increase in effort and cost. 
-
-
-
 ## Key Features
 
+:sparkles: Android app that is easy-to-use and understand
 
+:sparkles: No special electrical/hardware requirements, just click pictures of food!
 
-## How To Use
+:sparkles: Segmentation and Recognition of more than 250 fruits and vegetables
 
+:sparkles: Select multiple leftover ingredients at once
 
-
+:sparkles: Smart recipe recognition - Recipes ordered on the basis of how many new ingredients do you wish to purchase!
 
 ## Technical Details
 
 
 
-## You may also like...
-
-- [Pomolectron](https://github.com/amitmerchant1990/pomolectron) - A pomodoro app
-- [Correo](https://github.com/amitmerchant1990/correo) - A menubar/taskbar Gmail App for Windows and macOS
 
 ## License
 
 MIT
 
 ---
-
-> [amitmerchant.com](https://www.amitmerchant.com) &nbsp;&middot;&nbsp;
-> GitHub [@amitmerchant1990](https://github.com/amitmerchant1990) &nbsp;&middot;&nbsp;
-> Twitter [@amit_merchant](https://twitter.com/amit_merchant)
-
