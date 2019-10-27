@@ -5,18 +5,30 @@
 
 <h4 align="center">An AI based effort to reduce food wastage from households by incorporating the leftovers into delicious recipes!</h4>
 
-__swaad__ (hindi for 'taste') follows our belief that leftover food just needs a little redsign and it can save a lot of food going to waste. __swaad__ is a simple-to-use, cost-effective application that requires you to take pictures of left-over items like fruits and groceries and it will use Computer Vision algorithms to identify them and suggest recipes that you can make from them!
+__swaad__ (hindi for 'taste') follows our belief that leftover food just needs a little redsign and it can save a lot of food going to waste. __swaad__ is a simple-to-use, cost-effective application that requires you to take pictures of left-over items like fruits and groceries, and it will use Computer Vision algorithms to identify them and suggest recipes to make from them!
 
 <p align="center">
   <a href="#motivation">Motivation</a> •
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
-  <a href="#technical-details">Technical Details</a> •
-  <a href="#related">Related</a> •
-  <a href="#license">License</a>
+    <a href="#usage">Usage</a> •
+  <a href="#powered-by">Powered By</a>
 </p>
 
-![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
+<h1 align="center">
+  <br>
+  <img src="assets/screen1.jpg" alt="swaad" width="200">                    
+   <img src="assets/screen2.jpg" alt="swaad" width="200">
+</h1>
+
+<h1 align="right">
+  <br>
+ 
+</h1>
+
+
+
+
+
 
 ## Motivation
 
@@ -24,35 +36,28 @@ The [UN's Sustainable Development Goals Action Campaign](https://sdgactioncampai
 
 > In the U.S., up to 40 percent of all food goes uneaten each year, at an annual cost of $218 billion!
 
-Given the increase in awareness of this issue, several ideas like Waste Management Systems, Smart Fridges, etc, have been built, but with an increase in effort and cost. 
-
-
-
 ## Key Features
 
+:sparkles: Android app that is easy-to-use and understand
 
+:sparkles: No special electrical/hardware requirements, just click pictures of food!
 
-## How To Use
+:sparkles: Segmentation and Recognition of more than 250 fruits and vegetables
 
+:sparkles: Select multiple leftover ingredients at once
 
+:sparkles: Smart recipe recognition - Recipes ordered on the basis of how many new ingredients do you wish to purchase!
 
+## Usage
 
-## Technical Details
+In this example, we demonstrate how fruit and veggie leftovers with different image qualities can be combined to make recipes!
 
+![screenshot](assets/swaad.gif)
 
+## Powered By
 
-## You may also like...
-
-- [Pomolectron](https://github.com/amitmerchant1990/pomolectron) - A pomodoro app
-- [Correo](https://github.com/amitmerchant1990/correo) - A menubar/taskbar Gmail App for Windows and macOS
-
-## License
-
-MIT
-
----
-
-> [amitmerchant.com](https://www.amitmerchant.com) &nbsp;&middot;&nbsp;
-> GitHub [@amitmerchant1990](https://github.com/amitmerchant1990) &nbsp;&middot;&nbsp;
-> Twitter [@amit_merchant](https://twitter.com/amit_merchant)
-
+<h5>
+  <img src="https://abacusinsights.com/wp-content/uploads/2019/07/logo-AWS.png" width="70" height="50" />
+   <img src="https://user-images.githubusercontent.com/20749736/29601283-58be7ef6-87f8-11e7-82b5-0bfe982044d2.png" width="70" height="70" />
+   <img src="assets/food2fork.png" width="90" height="50" />
+ </h5>

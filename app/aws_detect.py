@@ -56,6 +56,7 @@ def main():
     label = detect_labels_local_file(photo)
 
     print(label)
+
     return label
 
 
