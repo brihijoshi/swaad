@@ -10,7 +10,7 @@ __swaad__ (hindi for 'taste') follows our belief that leftover food just needs a
 <p align="center">
   <a href="#motivation">Motivation</a> •
   <a href="#key-features">Key Features</a> •
-  <a href="#technical-details">Technical Details</a> •
+  <a href="#powered-by">Powered By</a> •
   <a href="#license">License</a>
 </p>
 
@@ -34,7 +34,14 @@ The [UN's Sustainable Development Goals Action Campaign](https://sdgactioncampai
 
 :sparkles: Smart recipe recognition - Recipes ordered on the basis of how many new ingredients do you wish to purchase!
 
-## Technical Details
+## Powered By
+
+<h5>
+  <img src="https://abacusinsights.com/wp-content/uploads/2019/07/logo-AWS.png" width="70" height="50" />
+   <img src="https://user-images.githubusercontent.com/20749736/29601283-58be7ef6-87f8-11e7-82b5-0bfe982044d2.png" width="70" height="70" />
+   <img src="assets/food2fork.png" width="90" height="50" />
+ </h5>
+
 
 
 
