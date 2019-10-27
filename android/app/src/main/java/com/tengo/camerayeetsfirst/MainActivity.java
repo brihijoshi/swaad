@@ -33,11 +33,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_PIC_REQUEST = 1;
     private static final int PERMISSIONS_REQUEST = 2;
     private static final String URI_PREFIX = "http://";
-    private static final String HOST = "169.228.184.253";
+    private static final String HOST = "18.222.211.32";
     private static final String PORT = "80";
     private static final String BASE_URL = URI_PREFIX + HOST + ":" + PORT;
 
     private ImageView mCameraButton;
+    private ImageView mRecipeButton;
     private ProgressBar mLoadingSpinner;
     private String mImagePath;
 
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mCameraButton = findViewById(R.id.camera_button);
+        mRecipeButton = findViewById(R.id.recipe_button);
         mLoadingSpinner = findViewById(R.id.loading_spinner);
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
                 attemptCamera();
             }
         });
+
+        mRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                makeRecipePostRequest();
+            }
+        });
+
         Log.e("starting", "started app");
     }
 
@@ -150,23 +160,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void makeRecipePostRequest() {
-//        // TODO figure out the request body
-//        final RequestBody postBodyImage = new MultipartBody.Builder()
-//                .setType(MultipartBody.FORM)
-//                .addFormDataPart("image", "food.jpg", RequestBody.create(MediaType.parse("image/*jpg"), bytes))
-//                .build();
-//
-//        final String postUrl = BASE_URL + "/recipe";
-//        Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate() {
-//            @Override
-//            public void onSuccess() {
-//                networkUIHandler(null);
-//            }
-//            @Override
-//            public void onFailure() {
-//                networkUIHandler("Network failure occurred!");
-//            }
-//        });
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("maxResults", "5")
+                .build();
+
+        final String postUrl = BASE_URL + "/recipe";
+        Networking.postRequest(postUrl, requestBody, new Networking.NetworkDelegate() {
+            @Override
+            public void onSuccess() {
+                networkUIHandler("Here comes the JSON recipes...");
+            }
+            @Override
+            public void onFailure() {
+                networkUIHandler("Network failure occurred!");
+            }
+        });
     }
 
     private void networkUIHandler(@Nullable final String toastText) {
