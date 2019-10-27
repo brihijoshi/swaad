@@ -16,7 +16,7 @@ import okhttp3.Response;
 public class Networking {
 
     interface NetworkDelegate {
-        void onSuccess();
+        void onSuccess(final Response response);
         void onFailure();
     }
 
@@ -41,7 +41,7 @@ public class Networking {
 
                     @Override
                     public void onResponse(Call call, final Response response) throws IOException {
-                        delegate.onSuccess();
+                        delegate.onSuccess(response);
                     }
                 });
     }

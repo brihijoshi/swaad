@@ -19,6 +19,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -27,13 +31,14 @@ import java.util.Date;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int CAMERA_PIC_REQUEST = 1;
     private static final int PERMISSIONS_REQUEST = 2;
     private static final String URI_PREFIX = "http://";
-    private static final String HOST = "18.222.211.32";
+    private static final String HOST = "169.228.184.253";
     private static final String PORT = "80";
     private static final String BASE_URL = URI_PREFIX + HOST + ":" + PORT;
 
@@ -56,14 +61,12 @@ public class MainActivity extends AppCompatActivity {
                 attemptCamera();
             }
         });
-
         mRecipeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 makeRecipePostRequest();
             }
         });
-
         Log.e("starting", "started app");
     }
 
@@ -139,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         if (bytes == null)
             throw new RuntimeException("Cannot get bytes for image");
 
-        Log.e("bytes length", ""+ bytes.length);
+        Log.e("bytes length", "" + bytes.length);
         RequestBody postBodyImage = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image", "food.jpg", RequestBody.create(MediaType.parse("image/*jpg"), bytes))
@@ -147,11 +150,12 @@ public class MainActivity extends AppCompatActivity {
 
         final String postUrl = BASE_URL + "/ingredient";
         Log.e("post url", postUrl);
-        Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate(){
+        Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate() {
             @Override
-            public void onSuccess() {
+            public void onSuccess(final Response response) {
                 networkUIHandler("Item Updated!");
             }
+
             @Override
             public void onFailure() {
                 networkUIHandler("Network Request Failed!");
@@ -168,9 +172,26 @@ public class MainActivity extends AppCompatActivity {
         final String postUrl = BASE_URL + "/recipe";
         Networking.postRequest(postUrl, requestBody, new Networking.NetworkDelegate() {
             @Override
-            public void onSuccess() {
+            public void onSuccess(final Response response) {
                 networkUIHandler("Here comes the JSON recipes...");
+                JSONObject jsonObject;
+                Recipe[] recipes;
+                try {
+                    jsonObject = new JSONObject(response.body().string());
+                    String temp = jsonObject.getJSONArray("results").toString();
+                    Log.e("response value", temp);
+                    recipes = new Gson().fromJson(temp, Recipe[].class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("recipes", recipes);
+                Intent intent = new Intent(getApplicationContext(), RecipeResults.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
+
             @Override
             public void onFailure() {
                 networkUIHandler("Network failure occurred!");
@@ -189,12 +210,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private @NonNull File createImageFile() throws IOException {
+    private @NonNull
+    File createImageFile() throws IOException {
         final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         final String imageFileName = "JPEG_" + timeStamp + "_";
         final File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         Log.e("Storage", storageDir.getAbsolutePath());
-        final File image = File.createTempFile(imageFileName,".jpg", storageDir);
+        final File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         mImagePath = image.getAbsolutePath();
         return image;
     }
