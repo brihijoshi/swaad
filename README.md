@@ -11,7 +11,6 @@ __swaad__ (hindi for 'taste') follows our belief that leftover food just needs a
   <a href="#motivation">Motivation</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#powered-by">Powered By</a> •
-  <a href="#license">License</a>
 </p>
 
 ![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
@@ -41,13 +40,3 @@ The [UN's Sustainable Development Goals Action Campaign](https://sdgactioncampai
    <img src="https://user-images.githubusercontent.com/20749736/29601283-58be7ef6-87f8-11e7-82b5-0bfe982044d2.png" width="70" height="70" />
    <img src="assets/food2fork.png" width="90" height="50" />
  </h5>
-
-
-
-
-
-## License
-
-MIT
-
----
