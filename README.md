@@ -14,7 +14,21 @@ __swaad__ (hindi for 'taste') follows our belief that leftover food just needs a
   <a href="#powered-by">Powered By</a> •
 </p>
 
-![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
+<h1 align="center">
+  <br>
+  <img src="assets/screen1.jpg" alt="swaad" width="200">                    
+   <img src="assets/screen2.jpg" alt="swaad" width="200">
+</h1>
+
+<h1 align="right">
+  <br>
+ 
+</h1>
+
+
+
+
+
 
 ## Motivation
 
@@ -35,6 +49,10 @@ The [UN's Sustainable Development Goals Action Campaign](https://sdgactioncampai
 :sparkles: Smart recipe recognition - Recipes ordered on the basis of how many new ingredients do you wish to purchase!
 
 ## Usage
+
+In this example, we demonstrate how fruit and veggie leftovers with different image qualities can be combined to make recipes!
+
+![screenshot](assets/swaad.gif)
 
 ## Powered By
 
