@@ -9,7 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +58,7 @@ public class RecipeResults extends AppCompatActivity {
             RecipeHolder recipeHolder = (RecipeHolder) holder;
             recipeHolder.mTitle.setText(mRecipes.get(position).title);
             recipeHolder.setRecipeUrl(mRecipes.get(position).source_url);
+            Picasso.get().load(mRecipes.get(position).image_url).into(recipeHolder.mImage);
         }
 
         @Override
@@ -64,12 +68,13 @@ public class RecipeResults extends AppCompatActivity {
 
         private static class RecipeHolder extends RecyclerView.ViewHolder {
             private TextView mTitle;
+            private ImageView mImage;
             private String mRecipeUrl;
 
             public RecipeHolder(final View itemView) {
                 super(itemView);
-                mTitle = (TextView) itemView.findViewById(R.id.recipe_name);
-
+                mTitle = (TextView) itemView.findViewById(R.id.recipe_title);
+                mImage = (ImageView) itemView.findViewById(R.id.recipe_image);
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

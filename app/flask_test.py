@@ -1,4 +1,4 @@
-from flask import Flask, request, Response, jsonify
+from flask import Flask, request, Response
 import os
 import json
 from werkzeug import utils
@@ -7,24 +7,20 @@ from food2fork import get_recipes
 
 
 app = Flask(__name__)
-
 label_list = []
 
 
 @app.route('/ingredient', methods=['POST'])
 def ingredient():
     print("hit ingredient endpoint")
-    print(str(request))
     image_file = request.files['image']
-    print("\nReceived image File name : " + image_file.filename)
     max = get_latest_file_id()
     filename = utils.secure_filename(str(max + 1))
     image_file.save("images/{}.jpg".format(filename))
     label = detect_labels_local_file("images/{}.jpg".format(filename))
     print(label)
-    if label != None:
+    if label is not None:
         label_list.append(label)
-    # clear_files()
 
     return Response(response=None, status=200, mimetype="application/json")
 
@@ -37,7 +33,6 @@ def recipe():
     print(str(label_list))
     response = get_recipes(label_list)
     label_list.clear()
-    print(str({"results": response}))
     clear_files()
 
     return Response(response=json.dumps({"results": response}), status=200, mimetype="application/json")
@@ -58,5 +53,7 @@ def get_latest_file_id():
                 max = int(file_id)
     return max
 
+
 # start flask app
+clear_files()
 app.run(host="0.0.0.0", port=80)

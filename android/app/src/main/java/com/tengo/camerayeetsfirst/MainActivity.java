@@ -129,12 +129,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Log.e("activity result", "response with code " + requestCode);
         if (requestCode == CAMERA_PIC_REQUEST && resultCode == RESULT_OK) {
-            if (data != null && data.getData() != null) {
-                Uri actualUri = data.getData();
-                Log.e("camera data", "actual path is " + actualUri.toString());
-            } else {
-                Log.e("camera data", "camera null");
-            }
             makeImagePostRequest();
         }
     }
@@ -144,16 +138,13 @@ public class MainActivity extends AppCompatActivity {
         if (bytes == null)
             throw new RuntimeException("Cannot get bytes for image");
 
-        Log.e("bytes length", "" + bytes.length);
         RequestBody postBodyImage = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image", "food.jpg", RequestBody.create(MediaType.parse("image/*jpg"), bytes))
                 .build();
 
         final String postUrl = BASE_URL + "/ingredient";
-        Log.e("post url", postUrl);
-//        displayImage();
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        AnimationUtils.fadeInToVisible(mLoadingSpinner);
         Networking.postRequest(postUrl, postBodyImage, new Networking.NetworkDelegate() {
             @Override
             public void onSuccess(final Response response) {
@@ -162,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure() {
-                networkUIHandler("Network Request Failed!");
+                networkUIHandler("Network failure occurred!");
             }
         });
     }
@@ -174,11 +165,11 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         final String postUrl = BASE_URL + "/recipe";
-        mLoadingSpinner.setVisibility(View.VISIBLE);
+        AnimationUtils.fadeInToVisible(mLoadingSpinner);
         Networking.postRequest(postUrl, requestBody, new Networking.NetworkDelegate() {
             @Override
             public void onSuccess(final Response response) {
-                networkUIHandler("Here comes the JSON recipes...");
+                networkUIHandler(null);
                 JSONObject jsonObject;
                 Recipe[] recipes;
                 try {
@@ -208,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mLoadingSpinner.setVisibility(View.GONE);
+                AnimationUtils.fadeOutToGone(mLoadingSpinner);
                 if (toastText != null)
                     Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_LONG).show();
             }
