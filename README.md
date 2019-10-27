@@ -18,6 +18,7 @@ __swaad__ (hindi for 'taste') follows our belief that leftover food just needs a
   <br>
   <img src="assets/screen1.jpg" alt="swaad" width="200">                    
    <img src="assets/screen2.jpg" alt="swaad" width="200">
+    <img src="assets/screen3.jpg" alt="swaad" width="200">
 </h1>
 
 <h1 align="right">
