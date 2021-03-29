@@ -103,7 +103,7 @@ ptyprocess==0.6.0
 pyarrow==0.15.0
 pyasn1==0.4.7
 pydot==1.4.1
-Pygments==2.4.2
+Pygments==2.7.4
 pynvx==1.0.0
 pyparsing==2.4.2
 pyperclip==1.7.0
