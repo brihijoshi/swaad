@@ -11,7 +11,7 @@ blis==0.4.1
 boto3==1.10.2
 botocore==1.13.2
 Bottleneck==1.2.1
-certifi==2019.9.11
+certifi==2022.12.7
 chardet==3.0.4
 Click==7.0
 cliff==2.8.3
